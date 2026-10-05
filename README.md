@@ -15,8 +15,6 @@ Everything stays on your machine. The app copies your sessions into a SQLite dat
 ## Setup
 
 ```sh
-git clone <this repo> claude-threads
-cd claude-threads
 bundle install
 bin/rails db:prepare
 bin/dev
