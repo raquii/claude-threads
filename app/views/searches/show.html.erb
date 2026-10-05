@@ -1,0 +1,36 @@
+<% content_for :title, @query.present? ? "Search: #{@query}" : "Search" %>
+<div class="search">
+  <h1><%= @query.present? ? "Results for “#{@query}”" : "Search" %></h1>
+  <% if @query.empty? %>
+    <div class="search-meta">Type in the search box to look through your prompts and Claude's replies.</div>
+  <% else %>
+    <div class="search-meta"><%= pluralize(@hits.size, "message") %><%= " (showing the best 100)" if @hits.size == 100 %></div>
+
+    <% if @conversations.any? %>
+      <div class="search-section">Conversation titles</div>
+      <% @conversations.each do |conversation| %>
+        <%= link_to conversation_path(conversation), class: "hit" do %>
+          <div class="hit-head">
+            <span class="hit-title"><%= conversation.title %></span>
+            <span><%= conversation.project.name %></span>
+            <% if conversation.archived? %><span>archived</span><% end %>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <% if @hits.any? %>
+      <div class="search-section">Messages</div>
+      <% @hits.each do |hit| %>
+        <%= link_to conversation_path(hit.conversation, at: hit.id, anchor: "message_#{hit.id}"), class: "hit" do %>
+          <div class="hit-head">
+            <span class="hit-title"><%= hit.conversation.title %></span>
+            <span><%= hit.kind == "prompt" ? "You" : "Claude" %></span>
+            <% if hit.sent_at %><span><%= hit.sent_at.strftime("%b %-d, %-l:%M %p") %></span><% end %>
+          </div>
+          <div class="hit-snippet"><%= highlighted_snippet(hit.snippet) %></div>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

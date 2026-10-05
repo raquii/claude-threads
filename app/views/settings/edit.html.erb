@@ -1,0 +1,52 @@
+<% content_for :title, "Settings" %>
+<div class="settings-page">
+<div class="settings" data-controller="look-preview">
+  <h1>Settings</h1>
+  <%# Full page loads so the saved look reaches <html>, which Turbo visits leave untouched. %>
+  <%= form_with model: @setting, url: settings_path, method: :patch, data: { turbo: false } do |form| %>
+    <% if @setting.errors.any? %>
+      <div class="run-error"><%= @setting.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <h2>Appearance</h2>
+    <label>
+      Mode
+      <%= form.select :appearance, Setting::APPEARANCES.invert, {}, data: { look: "appearance", action: "look-preview#apply" } %>
+    </label>
+    <label>
+      Color scheme
+      <%= form.select :theme, Setting::THEMES.invert, {}, data: { look: "theme", action: "look-preview#apply" } %>
+    </label>
+    <label>
+      Typeface
+      <%= form.select :font, Setting::FONTS.invert, {}, data: { look: "font", action: "look-preview#apply" } %>
+      <small>Changes preview immediately and apply everywhere once saved.</small>
+    </label>
+
+    <h2>Files</h2>
+    <label>
+      Open file links in
+      <%= form.select :editor, Setting::EDITORS.transform_values { it[:label] }.invert %>
+      <small>Paths in Claude's replies open at the referenced line.</small>
+    </label>
+
+    <h2>Scanning</h2>
+    <label>
+      Scan interval (seconds)
+      <%= form.number_field :scan_interval_seconds, min: 10 %>
+      <small>The scheduler checks every 10 seconds, so the minimum is 10.</small>
+    </label>
+    <label>
+      Projects root
+      <%= form.text_field :projects_root %>
+    </label>
+    <label>
+      Claude executable
+      <%= form.text_field :claude_path %>
+      <small>Used when you continue a session from this app.</small>
+    </label>
+    <%= form.submit "Save", class: "btn" %>
+    <%= link_to "Cancel", root_path, class: "btn btn-ghost", data: { turbo: false } %>
+  <% end %>
+</div>
+</div>

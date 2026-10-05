@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "older_#{before}", src: conversation_messages_path(conversation, before: before), loading: :lazy, class: "older", data: { action: "turbo:before-frame-render->thread#preserveScroll" } do %>
+  <div class="older-loading">Loading earlier messages…</div>
+<% end %>

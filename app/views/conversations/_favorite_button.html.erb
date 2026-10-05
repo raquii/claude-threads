@@ -1,0 +1,9 @@
+<% favorited = conversation.favorited_at.present? %>
+<%= button_to conversation_favorite_path(conversation),
+      method: favorited ? :delete : :post,
+      params: { current: current_id },
+      class: [ "star", ("is-on" if favorited) ],
+      title: favorited ? "Remove from favorites" : "Add to favorites",
+      form: { id: ("favorite_#{conversation.id}" if local_assigns[:header]), class: "star-form", data: { turbo_frame: "_top" } } do %>
+  <%= favorited ? "★" : "☆" %>
+<% end %>

@@ -1,0 +1,6 @@
+<% if @reimported %>
+  <%= turbo_stream.refresh %>
+<% elsif @messages.any? %>
+  <%= turbo_stream.append "messages", partial: "messages/message", collection: @messages, cached: true %>
+<% end %>
+<%= turbo_stream.update "run_status", method: :morph, partial: "runs/status", locals: { run: @run, conversation: @conversation } %>

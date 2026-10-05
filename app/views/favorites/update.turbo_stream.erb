@@ -1,0 +1,2 @@
+<%= turbo_stream.update "sidebar", method: :morph, partial: "conversations/sidebar", locals: sidebar_locals(current_id: @current_id) %>
+<%= turbo_stream.replace "favorite_#{@conversation.id}", partial: "conversations/favorite_button", locals: { conversation: @conversation, current_id: @current_id, header: true } %>

@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "save_#{@message.id}", partial: "messages/save_button", locals: { message: @message } %>
+<% unless @message.saved_at %>
+  <%= turbo_stream.remove "saved_item_#{@message.id}" %>
+<% end %>
+<%= turbo_stream.update "saved_count", Message.saved.count.to_s %>

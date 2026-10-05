@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Runs the app against the sample sessions in test/fixtures/files/claude, with its own databases.
+# Every start rebuilds the sandbox databases, so each session begins from the same sample data.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+export RAILS_ENV=sandbox
+# The sandbox isn't a "local" Rails environment, so it would otherwise need production credentials.
+export SECRET_KEY_BASE_DUMMY=1
+export PORT="${PORT:-3001}"
+
+rm -f storage/sandbox.sqlite3* storage/sandbox_queue.sqlite3*
+bin/rails db:prepare
+bin/rails runner 'Scanner.new.run; puts "Sandbox: #{Conversation.count} sample conversations at http://localhost:#{ENV["PORT"]}"'
+exec bin/dev

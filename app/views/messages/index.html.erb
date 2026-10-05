@@ -1,0 +1,6 @@
+<%= turbo_frame_tag "older_#{@before}", class: "older" do %>
+  <% if @has_older %>
+    <%= render "messages/older_frame", conversation: @conversation, before: @messages.first.id %>
+  <% end %>
+  <%= render partial: "messages/message", collection: @messages, cached: true %>
+<% end %>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<% look = Setting.current %>
+<html data-appearance="<%= look.appearance %>" data-theme="<%= look.theme %>" data-font="<%= look.font %>">
+  <head>
+    <title><%= content_for(:title) || "Claude Threads" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="application-name" content="Claude Threads">
+    <meta name="turbo-refresh-method" content="morph">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body data-controller="file-links" data-file-links-template-value="<%= look.editor_url_template %>" data-action="click->file-links#open">
+    <div class="app">
+      <aside class="sidebar" data-controller="frame-poll" data-frame-poll-interval-value="15000">
+        <div class="sidebar-head">
+          <%= link_to "Claude Threads", root_path, class: "brand" %>
+          <%= link_to "Settings", edit_settings_path, class: "head-link" %>
+        </div>
+        <%= form_with url: search_path, method: :get, class: "search-form" do |form| %>
+          <%= form.search_field :q, value: (params[:q] if controller_name == "searches"), placeholder: "Search conversations…", autocomplete: "off" %>
+        <% end %>
+        <%# Rendered inline and marked complete so Turbo doesn't refetch on load; reloads morph in place. %>
+        <%= turbo_frame_tag "sidebar", src: sidebar_conversations_path(current: @conversation&.id), complete: true, refresh: "morph", target: "_top", data: { "frame-poll-target": "frame" } do %>
+          <%= render "conversations/sidebar", **sidebar_locals(current_id: @conversation&.id) %>
+        <% end %>
+      </aside>
+      <main class="main">
+        <% if notice %><div class="flash"><%= notice %></div><% end %>
+        <%= yield %>
+      </main>
+    </div>
+  </body>
+</html>

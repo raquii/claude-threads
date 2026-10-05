@@ -1,0 +1,13 @@
+<div id="composer">
+  <% if conversation.resumable? %>
+    <%= form_with model: [ conversation, Run.new ], class: "composer", data: { controller: "composer", action: "keydown.meta+enter->composer#submit keydown.ctrl+enter->composer#submit turbo:submit-start->composer#start turbo:submit-end->composer#reset" } do |form| %>
+      <%= form.text_area :prompt, rows: 2, placeholder: "Continue this session…  (⌘↩ to send)", data: { "composer-target": "input" }, required: true %>
+      <div class="composer-actions">
+        <%= form.select :permission_mode, Run::PERMISSION_MODES.invert, { selected: "default" }, class: "mode-select" %>
+        <%= form.submit "Send", class: "btn", data: { "composer-target": "send" } %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="run-warning">This session can't be continued here: its working directory <code><%= conversation.cwd || "(unknown)" %></code> no longer exists.</div>
+  <% end %>
+</div>

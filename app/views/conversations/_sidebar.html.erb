@@ -1,0 +1,47 @@
+<nav class="projects">
+  <%= link_to saved_messages_path, class: "nav-link" do %>
+    <span class="nav-label"><%= bookmark_icon %> Saved</span><span class="count" id="saved_count"><%= Message.saved.count %></span>
+  <% end %>
+  <% recent_first = ->(list) { list.sort_by { -(it.last_activity_at || Time.at(0)).to_f } } %>
+  <% everything = projects.flat_map(&:conversations) %>
+  <% favorites = recent_first.(everything.select { it.favorited_at && it.archived_at.nil? }) %>
+  <% if favorites.any? %>
+    <%= tag.details class: "project favorites-group", id: "project_favorites", data: { key: "favorites" }, open: group_state.fetch("favorites", true) do %>
+      <summary>★ Favorites <span class="count"><%= favorites.size %></span></summary>
+      <% favorites.each do |conversation| %>
+        <%= render "conversations/sidebar_item", conversation: conversation, current_id: current_id %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% archived = [] %>
+  <% projects.each do |project| %>
+    <% conversations = recent_first.(project.conversations.reject { it.favorited_at && it.archived_at.nil? }) %>
+    <% active, gone = conversations.partition { it.archived_at.nil? } %>
+    <% archived.concat(gone) %>
+    <% next if active.empty? %>
+    <%= tag.details class: "project", id: "project_#{project.id}", data: { key: project.id }, open: group_state.fetch(project.id.to_s, true) do %>
+      <summary title="<%= project.cwd %>"><%= project.name %> <span class="count"><%= active.size %></span></summary>
+      <% active.each do |conversation| %>
+        <%= render "conversations/sidebar_item", conversation: conversation, current_id: current_id %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if archived.any? %>
+    <%= tag.details class: "project archived-group", id: "project_archived", data: { key: "archived" }, open: group_state.fetch("archived", false) do %>
+      <summary>Archived <span class="count"><%= archived.size %></span></summary>
+      <% recent_first.(archived).each do |conversation| %>
+        <%= render "conversations/sidebar_item", conversation: conversation, current_id: current_id %>
+      <% end %>
+    <% end %>
+  <% end %>
+</nav>
+
+<footer class="sidebar-footer">
+  <div class="sidebar-status">
+    <div><%= setting.last_scanned_at ? "Scanned #{time_ago_in_words(setting.last_scanned_at)} ago" : "Not scanned yet" %></div>
+    <div>Every <%= setting.scan_interval_seconds %>s</div>
+  </div>
+  <%= button_to "Scan now", scan_path, class: "btn btn-small", form: { data: { turbo_frame: "_top" } } %>
+</footer>

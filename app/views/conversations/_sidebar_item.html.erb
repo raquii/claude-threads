@@ -1,0 +1,10 @@
+<div class="thread-row <%= "current" if conversation.id == current_id %>" id="sidebar_conversation_<%= conversation.id %>">
+  <%= link_to conversation_path(conversation), class: "thread-link" do %>
+    <span class="thread-title"><%= conversation.title %></span>
+    <span class="thread-meta">
+      <%= conversation.last_activity_at ? time_ago_in_words(conversation.last_activity_at) : "—" %>
+      · <%= conversation.message_count %> msgs
+    </span>
+  <% end %>
+  <%= render "conversations/favorite_button", conversation: conversation, current_id: current_id %>
+</div>

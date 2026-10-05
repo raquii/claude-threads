@@ -1,0 +1,55 @@
+<% content_for :title, @conversation.title %>
+
+<div class="thread" data-controller="thread toggles"
+     data-thread-poll-url-value="<%= conversation_messages_path(@conversation, format: :turbo_stream) %>"
+     data-thread-target-id-value="<%= @target_id %>"
+     data-thread-generation-value="<%= @conversation.main_transcript.generation %>">
+  <header class="thread-head">
+    <div class="thread-head-main" data-controller="reveal">
+      <div class="title-row" data-reveal-target="shown">
+        <%= render "conversations/favorite_button", conversation: @conversation, current_id: @conversation.id, header: true %>
+        <h1><%= @conversation.title %></h1>
+        <button type="button" class="btn-icon" data-action="reveal#toggle" title="Rename">✎</button>
+      </div>
+      <%= form_with model: @conversation, class: "rename-form", html: { hidden: true }, data: { "reveal-target": "hidden" } do |form| %>
+        <%= form.text_field :custom_name, placeholder: @conversation.ai_title || "Name this conversation", autocomplete: "off" %>
+        <%= form.submit "Save", class: "btn btn-small" %>
+        <button type="button" class="btn btn-small btn-ghost" data-action="reveal#toggle">Cancel</button>
+      <% end %>
+      <div class="thread-sub">
+        <code><%= @conversation.cwd&.sub(Dir.home, "~") %></code>
+        <% if @conversation.git_branch.present? %> · <span class="branch"><%= @conversation.git_branch %></span><% end %>
+        · <span class="uuid" title="Session ID"><%= @conversation.session_uuid %></span>
+        <% if (next_conversation = @conversation.continued_in_session_uuid && Conversation.find_by(session_uuid: @conversation.continued_in_session_uuid)) %>
+          · <%= link_to "Continued in “#{next_conversation.title}” →", next_conversation %>
+        <% end %>
+      </div>
+    </div>
+    <div class="thread-tools">
+      <div class="toggle-group" role="group" aria-label="Tool call visibility">
+        <label class="toggle toggle-parent"><input type="checkbox" data-toggles-target="box" data-toggle="tools" data-toggle-default="true" data-action="toggles#change"> Tool calls</label>
+        <div class="toggle-children">
+          <label class="toggle"><input type="checkbox" data-toggles-target="box" data-toggle="thinking" data-toggle-parent="tools" data-action="toggles#change"> Thinking</label>
+          <label class="toggle"><input type="checkbox" data-toggles-target="box" data-toggle="subagents" data-toggle-parent="tools" data-action="toggles#change"> Subagents</label>
+        </div>
+      </div>
+      <label class="toggle"><input type="checkbox" data-toggles-target="box" data-toggle="meta" data-action="toggles#change"> System</label>
+      <%= button_to @conversation.archived? ? "Unarchive" : "Archive", conversation_path(@conversation),
+            method: :patch, params: { conversation: { archived: !@conversation.archived? } }, class: "btn btn-small btn-ghost" %>
+    </div>
+  </header>
+
+  <div class="scroller" data-thread-target="scroller">
+    <div class="messages" id="messages" data-thread-target="messages">
+      <% if @has_older %>
+        <%= render "messages/older_frame", conversation: @conversation, before: @messages.first.id %>
+      <% end %>
+      <%= render partial: "messages/message", collection: @messages, cached: true %>
+    </div>
+  </div>
+
+  <footer class="composer-wrap">
+    <div id="run_status"><%= render "runs/status", run: @run, conversation: @conversation %></div>
+    <%= render "runs/composer", conversation: @conversation %>
+  </footer>
+</div>

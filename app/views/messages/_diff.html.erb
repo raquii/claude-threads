@@ -1,0 +1,5 @@
+<div class="diff">
+  <div class="file-path"><%= path %></div>
+  <pre><% diff_lines(old_text, new_text).each do |sign, line| %><span class="diff-line <%= { "+" => "add", "-" => "del", " " => "ctx" }[sign] %>"><%= sign %> <%= line.chomp %>
+</span><% end %></pre>
+</div>

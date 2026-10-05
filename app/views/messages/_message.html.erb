@@ -1,0 +1,52 @@
+<div class="<%= message_dom_classes(message) %>" id="message_<%= message.id %>" data-message-id="<%= message.id %>">
+  <% case message.kind %>
+  <% when "prompt", "text" %>
+    <div class="bubble <%= message.kind == "prompt" ? "from-user" : "from-claude" %>">
+      <div class="who">
+        <% if message.sidechain %>
+          <%= message.kind == "prompt" ? "Claude → subagent" : "Subagent" %>
+        <% else %>
+          <%= message.kind == "prompt" ? "You" : "Claude" %>
+        <% end %>
+        <% if message.sent_at %><time datetime="<%= message.sent_at.iso8601 %>"><%= message.sent_at.strftime("%b %-d, %-l:%M %p") %></time><% end %>
+        <%= render "messages/save_button", message: message if message.saveable? %>
+      </div>
+      <div class="md"><%= markdown(message.body, cwd: message.conversation.cwd) %></div>
+    </div>
+  <% when "thinking" %>
+    <details class="thinking">
+      <summary>Thinking</summary>
+      <div class="md"><%= markdown(message.body, cwd: message.conversation.cwd) %></div>
+    </details>
+  <% when "tool_use" %>
+    <details class="tool" data-tool="<%= message.tool_name %>">
+      <summary>
+        <span class="tool-name"><%= message.tool_name %></span>
+        <span class="tool-summary"><%= tool_summary(message) %></span>
+      </summary>
+      <%= turbo_frame_tag "tool_#{message.id}", src: message_path(message), loading: :lazy do %>
+        <div class="tool-loading">Loading…</div>
+      <% end %>
+    </details>
+  <% when "image" %>
+    <img class="attachment" loading="lazy" src="<%= image_message_path(message) %>" alt="Attached image">
+  <% when "meta" %>
+    <details class="meta">
+      <summary>System · <%= message.body.to_s.lines.first.to_s.strip.truncate(100) %></summary>
+      <pre><%= message.body %></pre>
+    </details>
+  <% when "command" %>
+    <% if message.tool_name == "output" %>
+      <pre class="command-output"><%= message.body %></pre>
+    <% else %>
+      <div class="command"><code><%= message.body %></code></div>
+    <% end %>
+  <% when "marker" %>
+    <div class="marker"><span><%= message.body %></span></div>
+  <% when "summary" %>
+    <details class="compact-summary">
+      <summary>Summary Claude wrote for itself to carry context past the compaction</summary>
+      <div class="md"><%= markdown(message.body, cwd: message.conversation.cwd) %></div>
+    </details>
+  <% end %>
+</div>

@@ -1,0 +1,28 @@
+<% content_for :title, "Saved" %>
+<div class="search">
+  <h1>Saved messages</h1>
+  <div class="search-meta">
+    <% if @messages.any? %>
+      Newest saves first. Hover over a prompt or reply in any conversation and click Save to add it here.
+    <% else %>
+      Nothing saved yet. Hover over a prompt or reply in any conversation and click Save to keep it here.
+    <% end %>
+  </div>
+
+  <% @messages.each do |message| %>
+    <div class="hit saved-item" id="saved_item_<%= message.id %>">
+      <div class="hit-head">
+        <%= link_to message.conversation.title, conversation_path(message.conversation, at: message.id, anchor: "message_#{message.id}"), class: "hit-title" %>
+        <span><%= message.kind == "prompt" ? "You" : "Claude" %></span>
+        <% if message.sent_at %><span><%= message.sent_at.strftime("%b %-d, %-l:%M %p") %></span><% end %>
+        <span>saved <%= time_ago_in_words(message.saved_at) %> ago</span>
+        <%= render "messages/save_button", message: message %>
+      </div>
+      <div class="saved-body md" title="Open in conversation"
+           data-controller="row-link" data-action="click->row-link#visit"
+           data-row-link-url-value="<%= conversation_path(message.conversation, at: message.id, anchor: "message_#{message.id}") %>">
+        <%= markdown(message.body.to_s.truncate(1200), cwd: message.conversation.cwd) %>
+      </div>
+    </div>
+  <% end %>
+</div>

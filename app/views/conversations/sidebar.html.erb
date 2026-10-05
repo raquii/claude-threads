@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "sidebar", target: "_top" do %>
+  <%= render "conversations/sidebar", **sidebar_locals(current_id: params[:current].to_i) %>
+<% end %>

@@ -1,0 +1,9 @@
+<button type="button" id="save_<%= message.id %>"
+        class="save-btn <%= "is-on" if message.saved_at %>"
+        title="<%= message.saved_at ? "Remove from saved" : "Save for later" %>"
+        aria-label="<%= message.saved_at ? "Remove from saved" : "Save for later" %>"
+        aria-pressed="<%= message.saved_at.present? %>"
+        data-controller="save"
+        data-save-url-value="<%= message_save_path(message) %>"
+        data-save-method-value="<%= message.saved_at ? "DELETE" : "POST" %>"
+        data-action="save#toggle"><%= bookmark_icon(filled: message.saved_at.present?) %></button>

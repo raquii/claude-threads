@@ -1,0 +1,8 @@
+<%= turbo_frame_tag "transcript_#{@transcript.id}" do %>
+  <div class="messages nested">
+    <%= render partial: "messages/message", collection: @messages, cached: true %>
+    <% if @messages.size == TranscriptsController::LIMIT %>
+      <div class="marker"><span>Showing the first <%= TranscriptsController::LIMIT %> entries</span></div>
+    <% end %>
+  </div>
+<% end %>

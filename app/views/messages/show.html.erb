@@ -1,0 +1,52 @@
+<% input = @message.tool_input_hash %>
+<%= turbo_frame_tag "tool_#{@message.id}" do %>
+  <div class="tool-body">
+    <% case @message.tool_name %>
+    <% when "Bash" %>
+      <%= code_block(input["command"], language: "bash") %>
+    <% when "Edit" %>
+      <%= render "messages/diff", path: input["file_path"], old_text: input["old_string"], new_text: input["new_string"] %>
+    <% when "MultiEdit" %>
+      <% Array(input["edits"]).each do |edit| %>
+        <%= render "messages/diff", path: input["file_path"], old_text: edit["old_string"], new_text: edit["new_string"] %>
+      <% end %>
+    <% when "Write" %>
+      <div class="file-path"><%= input["file_path"] %></div>
+      <%= code_block(input["content"], language: language_for(input["file_path"])) %>
+    <% when "TodoWrite" %>
+      <ul class="todos">
+        <% Array(input["todos"]).each do |todo| %>
+          <li class="todo-<%= todo["status"] %>"><%= todo["content"] %></li>
+        <% end %>
+      </ul>
+    <% when "Agent", "Task" %>
+      <div class="md"><%= markdown(input["prompt"], cwd: @message.conversation.cwd) %></div>
+    <% else %>
+      <%= code_block(JSON.pretty_generate(input), language: "json") %>
+    <% end %>
+
+    <% @message.results.each do |result| %>
+      <% if result.kind == "image" %>
+        <img class="attachment" loading="lazy" src="<%= image_message_path(result) %>" alt="Tool result image">
+      <% elsif result.body.present? %>
+        <div class="tool-result <%= "is-error" if result.is_error %>">
+          <div class="label"><%= result.is_error ? "Error" : "Result" %></div>
+          <% if @message.tool_name.in?(%w[Agent Task]) %>
+            <div class="md"><%= markdown(result.body, cwd: @message.conversation.cwd) %></div>
+          <% else %>
+            <%= code_block(result.body, language: (language_for(input["file_path"]) if @message.tool_name == "Read")) %>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <% if (transcript = @message.subagent_transcript) %>
+      <div class="subagent-thread">
+        <div class="label">Subagent thread · <%= transcript.agent_type %> · <%= transcript.description %></div>
+        <%= turbo_frame_tag "transcript_#{transcript.id}", src: transcript_path(transcript), loading: :lazy do %>
+          <div class="tool-loading">Loading subagent…</div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
