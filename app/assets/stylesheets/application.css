@@ -32,6 +32,10 @@
   --hl-type: light-dark(#7a4fb0, #c3a3f0);
   --mono: ui-monospace, "SF Mono", Menlo, monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Roles a theme can color on their own; by default they follow the accent and text. */
+  --link: var(--accent);
+  --tool-name: var(--accent);
+  --group-heading: var(--text);
 }
 
 :root[data-theme="slate"] {
@@ -71,6 +75,66 @@
   --accent-soft: light-dark(#f0e3f6, #3a2944);
   --user-bubble: light-dark(#3a2c44, #4a3857);
   --code-bg: light-dark(#f3eef4, #2c262e);
+}
+
+:root[data-theme="guava"] {
+  --bg: light-dark(#fdf6f3, #1e1716);
+  --panel: light-dark(#fffcfb, #281f1e);
+  --sidebar: light-dark(#f9e7e1, #171111);
+  --border: light-dark(#f1d7cf, #402e2b);
+  --text: light-dark(#2e211e, #f4e8e4);
+  --muted: light-dark(#907169, #ab918a);
+  --accent: light-dark(#d9566c, #f5999b);
+  --accent-soft: light-dark(#fce2df, #4c2b2a);
+  --user-bubble: light-dark(#5b3034, #613b3c);
+  --code-bg: light-dark(#faede9, #312524);
+}
+
+:root[data-theme="rose"] {
+  --bg: light-dark(#f9f4f3, #1c1818);
+  --panel: light-dark(#fffdfc, #252020);
+  --sidebar: light-dark(#f0e3e2, #151212);
+  --border: light-dark(#e5d2d1, #3b3031);
+  --text: light-dark(#2f2627, #f0e6e6);
+  --muted: light-dark(#8a7576, #a6928f);
+  --accent: light-dark(#b0646f, #d69ca4);
+  --accent-soft: light-dark(#f2dfe0, #46323a);
+  --user-bubble: light-dark(#4f3639, #5a4044);
+  --code-bg: light-dark(#f4ebea, #2d2626);
+}
+
+/* Chris Kempson's Tomorrow palette: Tomorrow in light mode, Tomorrow Night Eighties in dark. */
+:root[data-theme="tomorrow"] {
+  --bg: light-dark(#f7f7f7, #2d2d2d);
+  --panel: light-dark(#ffffff, #393939);
+  --sidebar: light-dark(#efefef, #262626);
+  --text: light-dark(#4d4d4c, #cccccc);
+  --muted: light-dark(#8e908c, #999999);
+  --accent: light-dark(#4271ae, #6699cc);
+  --accent-soft: light-dark(#e1e8f2, #3b4654);
+  --on-accent: light-dark(#ffffff, #2d2d2d);
+  --user-bubble: light-dark(#4d4d4c, #515151);
+  --user-text: light-dark(#ffffff, #f2f2f2);
+  --code-bg: light-dark(#f2f2f2, #252525);
+  --add: light-dark(#eaf1d9, #3a4436);
+  --add-text: light-dark(#718c00, #99cc99);
+  --del: light-dark(#f7dede, #4b3536);
+  --del-text: light-dark(#c82829, #f2777a);
+  --warn-bg: light-dark(#fbf1d0, #4a4232);
+  --warn-text: light-dark(#8a6d00, #ffcc66);
+  --err-bg: light-dark(#f7dede, #4b3536);
+  --err-text: light-dark(#c82829, #f2777a);
+  --hl-keyword: light-dark(#8959a8, #cc99cc);
+  --hl-string: light-dark(#718c00, #99cc99);
+  --hl-comment: light-dark(#8e908c, #999999);
+  --hl-function: light-dark(#4271ae, #6699cc);
+  --hl-constant: light-dark(#f5871f, #f99157);
+  --hl-type: light-dark(#c99e00, #ffcc66);
+  --border: light-dark(color-mix(in srgb, #8959a8 30%, #ffffff), color-mix(in srgb, #cc99cc 38%, #2d2d2d));
+  --link: light-dark(#3e999f, #66cccc);
+  --tool-name: light-dark(#f5871f, #f99157);
+  --group-heading: light-dark(#8959a8, #ffcc66);
+  --inline-code: light-dark(#8959a8, #cc99cc);
 }
 
 :root[data-theme="mono"] {
@@ -152,7 +216,7 @@ mark { background: var(--accent-soft); color: inherit; border-radius: 3px; paddi
 .project + .project { border-top: 1px solid var(--border); margin-top: 2px; }
 .project > summary {
   list-style: none; cursor: pointer; padding: 12px 14px 4px; font-size: 12.5px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .04em; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-transform: uppercase; letter-spacing: .04em; color: var(--group-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .project > summary::-webkit-details-marker { display: none; }
 .project > summary::before { content: "▸"; display: inline-block; width: 12px; transition: transform .1s; }
@@ -255,7 +319,8 @@ mark { background: var(--accent-soft); color: inherit; border-radius: 3px; paddi
 .md > :last-child { margin-bottom: 0; }
 .md p, .md ul, .md ol { margin: .5em 0; }
 .md pre { background: var(--code-bg); color: var(--text); padding: 10px 12px; border-radius: 6px; overflow-x: auto; }
-.md :not(pre) > code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+.md :not(pre) > code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: var(--inline-code, inherit); }
+.md a, .md a > code { color: var(--link); }
 .from-user .md :not(pre) > code, .from-user .md pre { background: rgba(255,255,255,.12); color: inherit; }
 .md table { border-collapse: collapse; margin: .6em 0; display: block; overflow-x: auto; }
 .md th, .md td { border: 1px solid var(--border); padding: 4px 10px; text-align: left; }
@@ -275,7 +340,7 @@ details.thinking, details.meta {
 .tool > summary::before, .thinking > summary::before, .meta > summary::before { content: "▸"; color: var(--muted); transition: transform .1s; }
 .tool[open] > summary::before, .thinking[open] > summary::before, .meta[open] > summary::before { transform: rotate(90deg); }
 .tool > summary { padding: 2px 0; }
-.tool-name { font-family: var(--mono); font-weight: 600; color: var(--accent); }
+.tool-name { font-family: var(--mono); font-weight: 600; color: var(--tool-name); }
 .tool-summary { color: var(--muted); overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); }
 .tool-body { padding: 2px 0 10px 18px; }
 .tool-body pre { max-height: 480px; overflow: auto; }

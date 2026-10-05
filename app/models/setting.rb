@@ -1,6 +1,7 @@
 class Setting < ApplicationRecord
   APPEARANCES = { "system" => "Match system", "light" => "Light", "dark" => "Dark" }.freeze
-  THEMES = { "clay" => "Clay", "slate" => "Slate", "forest" => "Forest", "plum" => "Plum", "mono" => "Graphite" }.freeze
+  THEMES = { "clay" => "Clay", "slate" => "Slate", "forest" => "Forest", "plum" => "Plum", "guava" => "Guava", "rose" => "Dusty rose",
+    "tomorrow" => "Tomorrow", "mono" => "Graphite" }.freeze
   FONTS = {
     "system" => "San Francisco (system)",
     "avenir" => "Avenir Next",
