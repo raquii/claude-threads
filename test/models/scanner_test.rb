@@ -10,6 +10,8 @@ class ScannerTest < ActiveSupport::TestCase
     assert_equal "/tmp/sample-shop", shop.cwd
     assert_equal "toolu_s1_agent", shop.transcripts.find_by!(agent_id: "a1sample").tool_use_id
     assert_equal 1, shop.messages.where(kind: "summary").count
+    assert_equal [ "claude-opus-5-5", "high", "acceptEdits" ], [ shop.last_model, shop.last_effort, shop.last_permission_mode ]
+    assert_equal "manual", Conversation.find_by!(session_uuid: "33333333-3333-4333-8333-333333333333").last_permission_mode
     assert_equal "API v1 cleanup", Conversation.find_by!(session_uuid: "33333333-3333-4333-8333-333333333333").title
   end
 

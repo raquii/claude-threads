@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_192407) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_150100) do
   create_table "conversations", force: :cascade do |t|
     t.integer "project_id", null: false
     t.string "session_uuid", null: false
@@ -27,6 +27,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_192407) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "favorited_at"
+    t.string "last_model"
+    t.string "last_effort"
+    t.string "last_permission_mode"
     t.index ["project_id", "last_activity_at"], name: "index_conversations_on_project_id_and_last_activity_at"
     t.index ["project_id"], name: "index_conversations_on_project_id"
     t.index ["session_uuid"], name: "index_conversations_on_session_uuid", unique: true
@@ -74,6 +77,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_192407) do
     t.datetime "finished_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "model"
+    t.string "effort"
     t.index ["conversation_id"], name: "index_runs_on_conversation_id"
   end
 

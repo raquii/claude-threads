@@ -1,6 +1,4 @@
 class Conversation < ApplicationRecord
-  RECENT_WRITE_WINDOW = 15.seconds
-
   belongs_to :project
   has_many :transcripts, dependent: :destroy
   has_many :messages, dependent: :delete_all
@@ -21,12 +19,29 @@ class Conversation < ApplicationRecord
 
   def active_run
     run = runs.where(status: %w[queued running]).order(:id).last
-    run&.fail_if_abandoned! ? nil : run
+    return run unless run&.fail_if_abandoned!
+
+    start_next_run!
+    nil
   end
 
-  def written_elsewhere_recently?
-    mtime = main_transcript&.file_mtime
-    mtime.present? && mtime > RECENT_WRITE_WINDOW.ago && active_run.nil?
+  # The run whose reply the status line describes; queued messages haven't started yet.
+  def latest_run
+    runs.where.not(status: "waiting").order(:id).last
+  end
+
+  # Messages sent while a reply is running wait here, like the CLI's queue, and go out one at a time.
+  def waiting_runs
+    runs.where(status: "waiting").order(:id)
+  end
+
+  def start_next_run!
+    run = Run.transaction do
+      next if active_run
+
+      waiting_runs.first&.tap { it.update!(status: "queued") }
+    end
+    RunClaudeJob.perform_later(run) if run
   end
 
   # Another Claude Code process holding this session, from the registry Claude Code keeps in ~/.claude/sessions.
@@ -51,7 +66,8 @@ class Conversation < ApplicationRecord
     activity = [ last_activity_at, metadata[:sent_at] ].compact.max
     unless from_subagent
       self.cwd ||= metadata[:first_cwd]
-      assign_attributes(metadata.slice(:ai_title, :agent_name, :git_branch, :continued_in_session_uuid))
+      assign_attributes(metadata.slice(:ai_title, :agent_name, :git_branch, :continued_in_session_uuid,
+        :last_model, :last_effort, :last_permission_mode))
       self.first_prompt ||= rows.find { |row| row[:kind] == "prompt" && !row[:sidechain] }&.dig(:body)
       self.message_count += rows.count { |row| row[:kind].in?(Message::TALLIED_KINDS) && !row[:sidechain] }
     end

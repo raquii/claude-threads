@@ -20,7 +20,7 @@ class ConversationsController < ApplicationController
         stream.order(id: :desc).limit(PAGE_SIZE).to_a.reverse
       end
     @has_older = @messages.any? && stream.where(id: ...@messages.first.id).exists?
-    @run = @conversation.runs.order(:id).last
+    @run = @conversation.latest_run
   end
 
   def update

@@ -10,7 +10,7 @@ class MessagesController < ApplicationController
       # A re-imported transcript has all-new ids, so appending "after" would repeat the whole history.
       @reimported = params[:generation].present? && params[:generation].to_i != @conversation.main_transcript.reload.generation
       @messages = @reimported ? Message.none : stream.where("id > ?", params[:after].to_i).order(:id).limit(POLL_LIMIT)
-      @run = @conversation.runs.order(:id).last
+      @run = @conversation.latest_run
       render formats: :turbo_stream
     else
       @before = params[:before].to_i

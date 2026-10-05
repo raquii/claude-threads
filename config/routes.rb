@@ -15,7 +15,7 @@ Rails.application.routes.draw do
   end
   get "saved", to: "saves#index", as: :saved_messages
   resources :transcripts, only: :show
-  resources :runs, only: [] do
+  resources :runs, only: :destroy do
     post :cancel, on: :member
   end
   resource :scan, only: :create

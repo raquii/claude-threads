@@ -1,12 +1,57 @@
 <div id="composer">
   <% if conversation.resumable? %>
-    <%= form_with model: [ conversation, Run.new ], class: "composer", data: { controller: "composer", action: "keydown.meta+enter->composer#submit keydown.ctrl+enter->composer#submit turbo:submit-start->composer#start turbo:submit-end->composer#reset" } do |form| %>
+    <% selected_model = conversation.last_model.to_s %>
+    <% selected_effort = conversation.last_effort.to_s %>
+    <% selected_mode = conversation.last_permission_mode || "manual" %>
+    <%# autocomplete off stops the browser restoring stale choices into the radios on reload or back/forward. %>
+    <%= form_with model: [ conversation, Run.new ], class: "composer", html: { autocomplete: "off" }, data: { controller: "composer", action: "keydown.meta+enter->composer#submit keydown.ctrl+enter->composer#submit turbo:submit-start->composer#start turbo:submit-end->composer#reset" } do |form| %>
       <%= form.text_area :prompt, rows: 2, placeholder: "Continue this session…  (⌘↩ to send)", data: { "composer-target": "input" }, required: true %>
       <div class="composer-actions">
-        <%= form.select :permission_mode, Run::PERMISSION_MODES.invert, { selected: "default" }, class: "mode-select" %>
-        <%= form.submit "Send", class: "btn", data: { "composer-target": "send" } %>
+        <details class="run-options" data-controller="run-options" data-action="change->run-options#summarize toggle->run-options#ensureChecked keydown.esc->run-options#close">
+          <summary class="run-options-trigger" title="Model, effort, and permissions for this message">
+            <span data-run-options-target="summary"><%= run_options_summary(model: selected_model, effort: selected_effort, permission_mode: selected_mode) %></span>
+            <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M2.5 7.5 6 4l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="run-options-panel">
+            <fieldset data-run-options-target="group" data-default="<%= selected_model %>">
+              <legend>Model</legend>
+              <% model_options(conversation).each do |label, value, note| %>
+                <label class="option-row">
+                  <%= form.radio_button :model, value, checked: value == selected_model, data: { summary: value.present? ? label : "Default model" } %>
+                  <span class="option-text"><span class="option-label"><%= label %></span><span class="option-note"><%= note %></span></span>
+                  <span class="option-check" aria-hidden="true">✓</span>
+                </label>
+              <% end %>
+            </fieldset>
+            <fieldset data-run-options-target="group" data-default="<%= selected_effort %>">
+              <legend>Effort</legend>
+              <div class="option-pills">
+                <% effort_options.each do |label, value| %>
+                  <label class="option-pill">
+                    <%= form.radio_button :effort, value, checked: value == selected_effort, data: { summary: value } %>
+                    <span><%= label %></span>
+                  </label>
+                <% end %>
+              </div>
+            </fieldset>
+            <fieldset data-run-options-target="group" data-default="<%= selected_mode %>">
+              <legend>Permissions</legend>
+              <% Run::PERMISSION_MODES.each do |value, label| %>
+                <label class="option-row">
+                  <%= form.radio_button :permission_mode, value, checked: value == selected_mode, data: { summary: label } %>
+                  <span class="option-text"><span class="option-label"><%= label %></span><span class="option-note"><%= Run::PERMISSION_MODE_HINTS[value] %></span></span>
+                  <span class="option-check" aria-hidden="true">✓</span>
+                </label>
+              <% end %>
+            </fieldset>
+          </div>
+        </details>
+        <%= form.button type: "submit", class: "btn", data: { "composer-target": "send" } do %>
+          <span class="send-now">Send</span><span class="send-queue">Queue</span>
+        <% end %>
       </div>
     <% end %>
+    <div id="composer_error" class="composer-error" role="alert"></div>
   <% else %>
     <div class="run-warning">This session can't be continued here: its working directory <code><%= conversation.cwd || "(unknown)" %></code> no longer exists.</div>
   <% end %>

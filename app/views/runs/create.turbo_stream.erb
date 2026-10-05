@@ -1,1 +1,2 @@
 <%= turbo_stream.update "run_status", partial: "runs/status", locals: { run: @run, conversation: @conversation } %>
+<%= turbo_stream.update "composer_error", "" %>

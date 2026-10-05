@@ -17,6 +17,22 @@ class TranscriptLineTest < ActiveSupport::TestCase
     assert_equal [ "meta" ], flagged.rows.map { it[:kind] }
   end
 
+  test "assistant lines record model and effort; synthetic models and unknown efforts are ignored" do
+    line = TranscriptLine.new("type" => "assistant", "effort" => "xhigh", "message" => { "model" => "claude-opus-5-5", "content" => [] })
+    synthetic = TranscriptLine.new("type" => "assistant", "effort" => "turbo", "message" => { "model" => "<synthetic>", "content" => [] })
+
+    assert_equal({ last_model: "claude-opus-5-5", last_effort: "xhigh" }, line.metadata.slice(:last_model, :last_effort))
+    assert_empty synthetic.metadata.slice(:last_model, :last_effort).compact
+  end
+
+  test "permission modes map the legacy default to manual and drop unknown modes" do
+    mode = ->(recorded) { TranscriptLine.new("type" => "permission-mode", "permissionMode" => recorded).metadata[:last_permission_mode] }
+
+    assert_equal "auto", mode.("auto")
+    assert_equal "manual", mode.("default")
+    assert_nil mode.("yolo")
+  end
+
   test "compaction summaries are not treated as prompts" do
     line = TranscriptLine.new("type" => "user", "isCompactSummary" => true,
       "message" => { "role" => "user", "content" => "This session is being continued from a previous conversation…" })

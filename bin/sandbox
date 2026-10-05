@@ -9,6 +9,8 @@ export RAILS_ENV=sandbox
 export SECRET_KEY_BASE_DUMMY=1
 export PORT="${PORT:-3001}"
 
+# The sample sessions' working directories, so their composers render. Sends still fail, since Claude Code has no such sessions.
+mkdir -p /tmp/sample-shop /tmp/sample-api
 rm -f storage/sandbox.sqlite3* storage/sandbox_queue.sqlite3*
 bin/rails db:prepare
 bin/rails runner 'Scanner.new.run; puts "Sandbox: #{Conversation.count} sample conversations at http://localhost:#{ENV["PORT"]}"'

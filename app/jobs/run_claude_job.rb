@@ -5,10 +5,14 @@ require "open3"
 class RunClaudeJob < ApplicationJob
   def perform(run)
     conversation = run.conversation
+    # No one can answer a permission prompt here, so prompts are denied outright and listed afterwards.
     command = [
       Setting.current.claude_path, "-p",
       "--resume", conversation.session_uuid,
       "--permission-mode", run.permission_mode,
+      "--permission-prompts", "none",
+      *([ "--model", run.model ] if run.model),
+      *([ "--effort", run.effort ] if run.effort),
       "--output-format", "stream-json", "--verbose"
     ]
     run.update!(status: "running", started_at: Time.current)
@@ -34,13 +38,16 @@ class RunClaudeJob < ApplicationJob
     run.update!(
       status: failed ? "failed" : "succeeded",
       exit_status: exit_status,
-      error: failed ? (result&.dig("result").presence || stderr_output.presence || "claude exited with status #{exit_status}") : nil,
+      error: failed ? (result&.dig("result").presence || stderr_output.presence || "claude exited (status #{exit_status}) without sending a reply") : nil,
       denied_tools: denied.any? ? denied.to_json : nil,
       finished_at: Time.current
     )
   rescue => error
     run.update!(status: "failed", error: "#{error.class}: #{error.message}", finished_at: Time.current)
   ensure
-    Scanner.new.sync_conversation(conversation) if conversation
+    if conversation
+      Scanner.new.sync_conversation(conversation)
+      conversation.start_next_run!
+    end
   end
 end

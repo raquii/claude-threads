@@ -32,6 +32,7 @@ class TranscriptLine
 
     @metadata[:cwd] = @data["cwd"] if @data["cwd"]
     @metadata[:git_branch] = @data["gitBranch"] if @data["gitBranch"].present?
+    @metadata[:last_permission_mode] = Run.permission_mode_for(@data["permissionMode"]) if @data["permissionMode"]
     @metadata[:sent_at] = sent_at if sent_at
   end
 
@@ -98,6 +99,9 @@ class TranscriptLine
 
   def parse_assistant
     message = @data["message"] || {}
+    # Error and interrupt lines carry "<synthetic>" as their model.
+    @metadata[:last_model] = message["model"] if message["model"].to_s.start_with?("claude-")
+    @metadata[:last_effort] = @data["effort"] if Run::EFFORTS.include?(@data["effort"])
     Array(message["content"]).each do |block|
       case block["type"]
       when "text"

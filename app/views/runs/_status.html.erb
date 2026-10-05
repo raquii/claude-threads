@@ -1,5 +1,6 @@
 <% active = run && !run.finished? %>
 <% live = conversation.live_session %>
+<% waiting = conversation.waiting_runs.to_a %>
 <div class="run-status" data-active="<%= active %>" data-live="<%= live.present? %>">
   <% if live %>
     <div class="run-warning">
@@ -8,14 +9,27 @@
     </div>
   <% end %>
   <% if active %>
-    <span class="spinner"></span> Claude is working<%= " (#{Run::PERMISSION_MODES[run.permission_mode]})" %>…
-    <%= button_to "Stop", cancel_run_path(run), class: "btn btn-small btn-ghost", form: { data: { turbo_stream: true } } %>
+    <div class="run-working">
+      <span class="spinner"></span>
+      Claude is working (<%= [ Run::PERMISSION_MODES[run.permission_mode], (model_label(run.model) if run.model), ("#{run.effort} effort" if run.effort) ].compact.join(" · ") %>)…
+      <%= button_to "Stop", cancel_run_path(run), class: "btn btn-small btn-ghost", form: { data: { turbo_stream: true } } %>
+    </div>
   <% elsif run&.status == "failed" && run.finished_at && run.finished_at > 10.minutes.ago %>
     <div class="run-error">Last reply failed: <%= run.error.to_s.truncate(400) %></div>
-  <% elsif conversation.written_elsewhere_recently? %>
-    <div class="run-warning">This session was written to in the last few seconds by another Claude process. Sending now can fork its history.</div>
   <% end %>
   <% if run&.finished? && run.denied_tool_names.any? && run.finished_at > 10.minutes.ago %>
     <div class="run-warning">Blocked by permissions: <%= run.denied_tool_names.join(", ") %>. Resend with a less restrictive mode to allow them.</div>
+  <% end %>
+  <% if waiting.any? %>
+    <ol class="run-queue" aria-label="Queued messages">
+      <% waiting.each do |queued| %>
+        <li>
+          <span class="run-queue-label">Queued</span>
+          <span class="run-queue-prompt"><%= queued.prompt.squish.truncate(160) %></span>
+          <%= button_to "×", run_path(queued), method: :delete, class: "btn-icon", title: "Remove from queue",
+                form: { data: { turbo_stream: true } } %>
+        </li>
+      <% end %>
+    </ol>
   <% end %>
 </div>
