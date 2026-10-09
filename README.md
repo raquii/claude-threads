@@ -31,6 +31,7 @@ Open http://localhost:3000. The first scan starts within 10 seconds and imports 
 | Rename a conversation | The ✎ next to its title. Without a name, the title comes from `/rename`, then Claude's generated title, then your first prompt. |
 | Favorite | The ☆ next to the title, or on a sidebar row when you hover. Favorites move to the top of the sidebar. |
 | Save a message | Hover over a prompt or reply and click the bookmark. **Saved** at the top of the sidebar lists them. |
+| Take notes | **Notes** in the conversation header opens a panel with one Markdown note for the conversation. To note a specific message, hover over it and click the note icon; the message keeps the icon, and hovering it shows the note. **Notes** in the sidebar lists every note. |
 | Archive | **Archive** in the conversation header. Archived conversations collect at the bottom of the sidebar. |
 | Search | The box at the top of the sidebar searches conversation titles and the text of your prompts and Claude's replies. Results link to the message. |
 | Show more detail | **Tool calls** (with **Thinking** and **Subagents** inside it) and **System** in the header. Your choices are remembered. |
@@ -58,6 +59,7 @@ The app won't send to a session that is open in a terminal or running in the bac
 | Data | Where it lives | In git |
 |---|---|---|
 | Your conversations | `storage/development.sqlite3` | Ignored |
+| Your notes, which exist only here and are not backed up | `storage/development.sqlite3` | Ignored |
 | Logs, which include conversation text | `log/` | Ignored |
 | Rendered-page cache | memory, and `tmp/` | Ignored |
 

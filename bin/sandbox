@@ -9,6 +9,12 @@ export RAILS_ENV=sandbox
 export SECRET_KEY_BASE_DUMMY=1
 export PORT="${PORT:-3001}"
 
+# Rebuilding the databases under a sandbox that is already running would corrupt its data.
+if lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
+  echo "Port $PORT is already in use; stop the server running there first." >&2
+  exit 1
+fi
+
 # The sample sessions' working directories, so their composers render. Sends still fail, since Claude Code has no such sessions.
 mkdir -p /tmp/sample-shop /tmp/sample-api
 rm -f storage/sandbox.sqlite3* storage/sandbox_queue.sqlite3*

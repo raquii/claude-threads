@@ -1,5 +1,6 @@
 <% content_for :title, @conversation.title %>
 
+<div class="conversation" data-controller="notes-panel">
 <div class="thread" data-controller="thread toggles"
      data-thread-poll-url-value="<%= conversation_messages_path(@conversation, format: :turbo_stream) %>"
      data-thread-target-id-value="<%= @target_id %>"
@@ -34,6 +35,9 @@
         </div>
       </div>
       <label class="toggle"><input type="checkbox" data-toggles-target="box" data-toggle="meta" data-action="toggles#change"> System</label>
+      <button type="button" class="btn btn-small btn-ghost notes-toggle" data-action="notes-panel#toggle" title="Show or hide notes">
+        <%= note_icon %> Notes <span class="count" id="notes_toggle_count"><%= @conversation.notes.count %></span>
+      </button>
       <%= button_to @conversation.archived? ? "Unarchive" : "Archive", conversation_path(@conversation),
             method: :patch, params: { conversation: { archived: !@conversation.archived? } }, class: "btn btn-small btn-ghost" %>
     </div>
@@ -52,4 +56,13 @@
     <div id="run_status"><%= render "runs/status", run: @run, conversation: @conversation %></div>
     <%= render "runs/composer", conversation: @conversation %>
   </footer>
+</div>
+
+<aside class="notes-panel" data-notes-panel-target="panel" hidden aria-label="Notes">
+  <header class="notes-panel-head">
+    <span><%= note_icon %> Notes</span>
+    <button type="button" class="btn-icon" data-action="notes-panel#toggle" title="Close notes">×</button>
+  </header>
+  <div class="notes-panel-body" id="notes_panel_body"><%= render "notes/panel", conversation: @conversation %></div>
+</aside>
 </div>

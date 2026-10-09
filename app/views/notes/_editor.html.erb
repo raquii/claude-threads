@@ -1,0 +1,37 @@
+<div class="note-editor" data-controller="note-editor" data-note-editor-preview-url-value="<%= preview_conversation_note_path(conversation) %>"
+     data-action="note-editor:open->note-editor#edit">
+  <div data-note-editor-target="view">
+    <% if note %>
+      <div class="md note-body"><%= markdown(note.body, cwd: conversation.cwd) %></div>
+      <div class="note-actions">
+        <button type="button" class="btn btn-small btn-ghost" data-action="note-editor#edit">Edit</button>
+        <button type="button" class="btn btn-small btn-ghost" data-action="note-editor#delete">Delete</button>
+      </div>
+    <% else %>
+      <button type="button" class="note-add" data-action="note-editor#edit">
+        <%= message_uuid.nil? ? "Add a note about this conversation…" : "Add a note about this message…" %>
+      </button>
+    <% end %>
+  </div>
+
+  <% field_id = "note_body_#{conversation.id}_#{message_uuid.nil? ? "conversation" : message_uuid.presence || "new"}" %>
+  <%= form_with url: conversation_note_path(conversation), method: :patch, class: "note-form", html: { hidden: true },
+        data: { "note-editor-target": "form", controller: "markdown-editor",
+                action: "keydown.meta+enter->note-editor#save keydown.ctrl+enter->note-editor#save keydown.esc->note-editor#cancel" } do |form| %>
+    <%= hidden_field_tag "note[message_uuid]", message_uuid, id: nil %>
+    <div class="note-editor-bar">
+      <div class="note-tabs" role="tablist">
+        <button type="button" class="note-tab is-active" role="tab" data-note-editor-target="writeTab" data-action="note-editor#write">Write</button>
+        <button type="button" class="note-tab" role="tab" data-note-editor-target="previewTab" data-action="note-editor#preview">Preview</button>
+      </div>
+      <%= render "shared/markdown_toolbar", field_id: field_id %>
+    </div>
+    <%= text_area_tag "note[body]", note&.body, id: field_id, rows: 6, placeholder: "Markdown works here.  ⌘↩ to save",
+          data: { "note-editor-target": "input", "markdown-editor-target": "input", action: "keydown->markdown-editor#keydown" } %>
+    <div class="md note-preview" data-note-editor-target="previewPane" hidden></div>
+    <div class="note-actions">
+      <button type="button" class="btn btn-small btn-ghost" data-action="note-editor#cancel">Cancel</button>
+      <button type="submit" class="btn btn-small">Save</button>
+    </div>
+  <% end %>
+</div>

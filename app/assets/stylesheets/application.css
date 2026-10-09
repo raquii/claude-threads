@@ -248,12 +248,99 @@ mark { background: var(--accent-soft); color: inherit; border-radius: 3px; paddi
 .settings { max-width: 560px; margin: 0 auto; padding: 48px 16px 64px; }
 .settings h2 { font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin: 28px 0 12px; padding-top: 16px; border-top: 1px solid var(--border); }
 
-.thread { display: flex; flex-direction: column; height: 100vh; }
+.conversation { display: flex; height: 100vh; }
+.thread { display: flex; flex-direction: column; height: 100vh; flex: 1; min-width: 0; }
+
+.notes-toggle { display: inline-flex; align-items: center; gap: 5px; }
+.notes-toggle .count { color: var(--muted); }
+.conversation.notes-open .notes-toggle { background: var(--accent-soft); border-color: var(--accent); }
+.notes-panel { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: var(--panel); }
+.notes-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 6px; font-weight: 600; }
+.notes-panel-head span { display: inline-flex; align-items: center; gap: 6px; }
+.notes-panel-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 16px 16px; }
+/* The tab row's bottom border is the line under the header; the active tab overlaps it to join the content below. */
+.notes-tabs { display: flex; gap: 2px; margin: 0 -16px 12px; padding: 0 16px; border-bottom: 1px solid var(--border); }
+.notes-tab {
+  border: 1px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; margin-bottom: -1px; background: none;
+  color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 14px; cursor: pointer;
+}
+.notes-tab:hover { color: var(--text); }
+.notes-tab.is-active { background: var(--panel); border-color: var(--border); color: var(--text); }
+.notes-tab .count { font-weight: 400; color: var(--muted); }
+.notes-pane { flex: 1; min-height: 0; overflow-y: auto; }
+/* The conversation note, its editor, and its preview fill the rest of the panel. */
+.notes-pane-conversation { display: flex; flex-direction: column; overflow: hidden; }
+.notes-pane-conversation .note-editor, .notes-pane-conversation .note-form { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.notes-pane-conversation [data-note-editor-target="view"] { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.notes-pane-conversation [data-note-editor-target="view"] .note-actions { order: -1; margin: 0 0 8px; }
+.notes-pane-conversation .note-body { flex: 1; min-height: 0; overflow-y: auto; }
+.notes-pane-conversation .note-add { flex: 1; text-align: center; }
+.notes-pane-conversation .note-form textarea, .notes-pane-conversation .note-preview { flex: 1; min-height: 0; resize: none; overflow-y: auto; }
+.notes-empty { color: var(--muted); font-size: 12.5px; margin: 4px 0; }
+.note-add {
+  width: 100%; text-align: left; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 8px;
+  background: none; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer;
+}
+.note-add:hover { color: var(--text); border-color: var(--muted); }
+.note-body { font-size: 13.5px; }
+.note-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+.note-form textarea {
+  width: 100%; min-height: 120px; resize: vertical; font: inherit; font-size: 13px; padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: 0 8px 8px 8px; background: var(--bg); color: var(--text);
+}
+.note-preview { min-height: 120px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 0 8px 8px 8px; font-size: 13.5px; }
+.note-tabs { display: flex; gap: 2px; }
+.note-editor-bar { display: flex; flex-wrap: wrap-reverse; align-items: flex-end; justify-content: space-between; gap: 4px 8px; }
+.md-toolbar { display: flex; align-items: center; gap: 1px; padding-bottom: 3px; }
+.md-toolbar[hidden] { display: none; }
+.note-form:has(.note-preview:not([hidden])) .md-toolbar { visibility: hidden; }
+.md-toolbar-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 24px; padding: 0 3px;
+  border-radius: 5px; color: var(--muted); font-size: 12.5px; cursor: pointer; user-select: none;
+}
+.md-toolbar-btn:hover, .md-toolbar-btn:focus-visible { background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text); outline: none; }
+.md-toolbar-btn code { font-size: 11px; background: none; padding: 0; }
+.md-toolbar-sep { width: 1px; height: 14px; margin: 0 3px; background: var(--border); }
+.note-tab { border: 1px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; background: none; color: var(--muted); font: inherit; font-size: 12px; padding: 4px 10px; cursor: pointer; }
+.note-tab.is-active { border-color: var(--border); background: var(--bg); color: var(--text); }
+.message-notes { display: flex; flex-direction: column; gap: 10px; }
+/* Message notes wear the accent so they never read as chat bubbles, here or in the hover popup. */
+.message-note, .note-popup {
+  background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-left: 3px solid var(--accent);
+}
+.message-note { padding: 10px 12px; border-radius: 8px; }
+.message-note .note-form textarea, .message-note .note-preview { background: var(--panel); }
+.message-note-head { font-size: 12px; color: var(--muted); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.message-note-link { color: inherit; text-decoration: none; }
+.message-note-link:hover span { text-decoration: underline; }
+.message-note-head strong { color: var(--text); font-weight: 600; }
+.message-note-missing { font-style: italic; }
+
+.note-anchor { margin-left: auto; position: relative; display: inline-flex; align-self: center; }
+.note-anchor + .save-btn { margin-left: 0; }
+.note-btn { display: inline-flex; background: none; border: 0; border-radius: 4px; color: inherit; padding: 2px; cursor: pointer; opacity: 0; }
+.note-btn:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+.bubble:hover .note-btn, .note-btn:focus-visible, .note-anchor.has-note .note-btn { opacity: 1; }
+.note-anchor.has-note .note-btn { color: var(--accent); }
+.note-anchor.has-note .note-icon path:first-child { fill: currentColor; }
+.from-user .note-anchor.has-note .note-btn { color: inherit; }
+.note-popup {
+  display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 15; width: 320px; max-height: 280px; overflow: auto;
+  padding: 10px 12px; border-radius: 10px; color: var(--text);
+  font-size: 13px; font-weight: 400; text-align: left; box-shadow: 0 8px 24px color-mix(in srgb, #000 16%, transparent);
+}
+.note-anchor.has-note:hover .note-popup, .note-anchor.has-note:focus-within .note-popup { display: block; }
+
+.notes-group { padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+.notes-group-item { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.notes-group-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; text-decoration: none; }
+a.notes-group-label:hover { color: var(--text); text-decoration: underline; }
 .thread-head {
-  display: flex; gap: 16px; align-items: flex-start; justify-content: space-between;
+  display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: flex-start; justify-content: space-between;
   padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--panel);
 }
-.thread-head-main { min-width: 0; }
+/* The title keeps at least this much room; the buttons wrap below it instead of truncating it. */
+.thread-head-main { min-width: 0; flex: 1 1 320px; }
 .title-row { display: flex; align-items: center; gap: 4px; }
 .thread-head h1 { font-size: 17px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rename-form { display: flex; gap: 6px; }
@@ -298,7 +385,8 @@ mark { background: var(--accent-soft); color: inherit; border-radius: 3px; paddi
 .tool-group-names { color: var(--muted); font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; }
 .tool-group-body { display: flex; flex-direction: column; gap: 0; padding: 0 0 4px 18px; }
 .tool-group-body > .msg { max-width: none; width: 100%; }
-.who { font-size: 11.5px; font-weight: 600; opacity: .7; margin-bottom: 2px; display: flex; gap: 8px; align-items: baseline; }
+/* Dimmed by color, not opacity, so the note popup inside it renders at full strength. */
+.who { font-size: 11.5px; font-weight: 600; color: color-mix(in srgb, currentColor 70%, transparent); margin-bottom: 2px; display: flex; gap: 8px; align-items: baseline; }
 .save-btn {
   margin-left: auto; align-self: center; display: inline-flex; background: none; border: 0; border-radius: 4px;
   color: inherit; padding: 2px; cursor: pointer; opacity: 0;

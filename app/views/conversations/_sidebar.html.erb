@@ -2,6 +2,9 @@
   <%= link_to saved_messages_path, class: "nav-link" do %>
     <span class="nav-label"><%= bookmark_icon %> Saved</span><span class="count" id="saved_count"><%= Message.saved.count %></span>
   <% end %>
+  <%= link_to notes_path, class: "nav-link" do %>
+    <span class="nav-label"><%= note_icon %> Notes</span><span class="count" id="notes_count"><%= Note.count %></span>
+  <% end %>
   <% recent_first = ->(list) { list.sort_by { -(it.last_activity_at || Time.at(0)).to_f } } %>
   <% everything = projects.flat_map(&:conversations) %>
   <% favorites = recent_first.(everything.select { it.favorited_at && it.archived_at.nil? }) %>

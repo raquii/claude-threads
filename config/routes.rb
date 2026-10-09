@@ -8,7 +8,11 @@ Rails.application.routes.draw do
     resources :messages, only: :index
     resources :runs, only: :create
     resource :favorite, only: %i[create destroy]
+    resource :note, only: :update do
+      post :preview
+    end
   end
+  get "notes", to: "notes#index", as: :notes
   resources :messages, only: :show do
     get :image, on: :member
     resource :save, only: %i[create destroy]

@@ -89,6 +89,15 @@ module MessagesHelper
     h(snippet.to_s.squish).gsub(Message::MARK_START, "<mark>").gsub(Message::MARK_END, "</mark>").html_safe
   end
 
+  def note_icon(filled: false)
+    tag.svg(class: "note-icon", viewBox: "0 0 24 24", width: 14, height: 14, aria: { hidden: true }) do
+      safe_join([
+        tag.path(d: "M5.5 3.5h9l4 4v13h-13z", fill: filled ? "currentColor" : "none", stroke: "currentColor", "stroke-width": 1.8, "stroke-linejoin": "round"),
+        tag.path(d: "M8.5 11.5h7M8.5 15h5", stroke: filled ? "var(--panel)" : "currentColor", "stroke-width": 1.6, "stroke-linecap": "round")
+      ])
+    end
+  end
+
   def bookmark_icon(filled: false)
     tag.svg(class: "bookmark-icon", viewBox: "0 0 24 24", width: 14, height: 14, aria: { hidden: true }) do
       tag.path(d: "M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4-6.5 4v-16a1 1 0 0 1 1-1z",

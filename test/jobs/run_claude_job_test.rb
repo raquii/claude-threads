@@ -32,6 +32,28 @@ class RunClaudeJobTest < ActiveJob::TestCase
     assert_equal [ "Bash" ], run.denied_tool_names
   end
 
+  test "a reply that finished counts as succeeded even if claude exits non-zero afterwards" do
+    File.write(Setting.current.claude_path, <<~SH)
+      #!/bin/sh
+      cat > /dev/null
+      echo '{"type":"result","is_error":false,"result":"done"}'
+      exit 143
+    SH
+    run = @conversation.runs.create!(prompt: "hi", permission_mode: "manual")
+    RunClaudeJob.perform_now(run)
+
+    assert_equal [ "succeeded", 143, nil ], run.reload.slice(:status, :exit_status, :error).values
+  end
+
+  test "a non-zero exit without a result is a failure" do
+    File.write(Setting.current.claude_path, "#!/bin/sh\ncat > /dev/null\nexit 1\n")
+    run = @conversation.runs.create!(prompt: "hi", permission_mode: "manual")
+    RunClaudeJob.perform_now(run)
+
+    assert_equal "failed", run.reload.status
+    assert_match "status 1", run.error
+  end
+
   test "a finished reply starts the next queued message" do
     run = @conversation.runs.create!(prompt: "first", permission_mode: "manual")
     queued = @conversation.runs.create!(prompt: "second", permission_mode: "manual", status: "waiting")

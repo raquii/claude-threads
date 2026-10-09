@@ -34,7 +34,9 @@ class RunClaudeJob < ApplicationJob
     end
 
     denied = Array(result&.dig("permission_denials")).filter_map { |denial| denial["tool_name"] }.uniq
-    failed = exit_status != 0 || result.nil? || result["is_error"]
+    # The result line marks a finished turn. claude can still exit non-zero afterwards (143 when it is
+    # terminated while shutting down background tasks), so the exit status only matters without one.
+    failed = result.nil? || result["is_error"]
     run.update!(
       status: failed ? "failed" : "succeeded",
       exit_status: exit_status,

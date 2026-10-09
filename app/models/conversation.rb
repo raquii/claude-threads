@@ -3,6 +3,7 @@ class Conversation < ApplicationRecord
   has_many :transcripts, dependent: :destroy
   has_many :messages, dependent: :delete_all
   has_many :runs, dependent: :destroy
+  has_many :notes, dependent: :delete_all
   has_one :main_transcript, -> { where(agent_id: nil) }, class_name: "Transcript"
 
   scope :active, -> { where(archived_at: nil) }

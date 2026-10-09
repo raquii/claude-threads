@@ -1,0 +1,23 @@
+<%# GitHub's <markdown-toolbar> formats the textarea named by `for`; markdown-editor maps ⌘B/⌘I/⌘K/⌘E onto these buttons. %>
+<markdown-toolbar for="<%= field_id %>" class="md-toolbar" data-markdown-editor-target="toolbar" <%= "hidden" if local_assigns[:hidden] %>>
+  <md-bold class="md-toolbar-btn" title="Bold (⌘B)"><strong>B</strong></md-bold>
+  <md-italic class="md-toolbar-btn" title="Italic (⌘I)"><em>I</em></md-italic>
+  <md-strikethrough class="md-toolbar-btn" title="Strikethrough"><s>S</s></md-strikethrough>
+  <md-code class="md-toolbar-btn" title="Code (⌘E)"><code>&lt;/&gt;</code></md-code>
+  <md-link class="md-toolbar-btn" title="Link (⌘K)">
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6.5 9.5a3 3 0 0 0 4.2 0l2.3-2.3a3 3 0 0 0-4.2-4.2l-.8.8M9.5 6.5a3 3 0 0 0-4.2 0L3 8.8A3 3 0 0 0 7.2 13l.8-.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </md-link>
+  <span class="md-toolbar-sep" aria-hidden="true"></span>
+  <md-quote class="md-toolbar-btn" title="Quote">
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 4v8M6.5 5h6.5M6.5 8h6.5M6.5 11h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </md-quote>
+  <md-unordered-list class="md-toolbar-btn" title="Bulleted list">
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="3" cy="4.5" r="1.1" fill="currentColor"/><circle cx="3" cy="8" r="1.1" fill="currentColor"/><circle cx="3" cy="11.5" r="1.1" fill="currentColor"/><path d="M6 4.5h7.5M6 8h7.5M6 11.5h7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </md-unordered-list>
+  <md-ordered-list class="md-toolbar-btn" title="Numbered list">
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2.3 3.5h1v3M2 6.5h1.8M2 9.6c.3-.6 1.8-.6 1.8.3 0 .8-1.8 1.4-1.8 2.1h1.9" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 4.5h7M6.5 8h7M6.5 11.5h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </md-ordered-list>
+  <md-task-list class="md-toolbar-btn" title="Task list">
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="1.8" y="3.3" width="4.4" height="4.4" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.8 5.5l.9.9 1.5-1.7" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><rect x="1.8" y="9.3" width="4.4" height="4.4" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8.5 5.5h5M8.5 11.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </md-task-list>
+</markdown-toolbar>

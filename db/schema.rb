@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_150100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
   create_table "conversations", force: :cascade do |t|
     t.integer "project_id", null: false
     t.string "session_uuid", null: false
@@ -53,6 +53,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_150100) do
     t.index ["conversation_id", "tool_use_id"], name: "index_messages_on_conversation_id_and_tool_use_id"
     t.index ["saved_at"], name: "index_messages_on_saved_at", where: "saved_at IS NOT NULL"
     t.index ["transcript_id", "id"], name: "index_messages_on_transcript_id_and_id"
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.integer "conversation_id", null: false
+    t.string "message_uuid"
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id", "message_uuid"], name: "index_notes_on_conversation_id_and_message_uuid", unique: true
+    t.index ["conversation_id"], name: "index_notes_one_conversation_note", unique: true, where: "message_uuid IS NULL"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -117,6 +127,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_150100) do
   add_foreign_key "conversations", "projects"
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "transcripts"
+  add_foreign_key "notes", "conversations"
   add_foreign_key "runs", "conversations"
   add_foreign_key "transcripts", "conversations"
 

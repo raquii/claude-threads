@@ -1,4 +1,4 @@
-<div class="<%= message_dom_classes(message) %>" id="message_<%= message.id %>" data-message-id="<%= message.id %>">
+<div class="<%= message_dom_classes(message) %>" id="message_<%= message.id %>" data-message-id="<%= message.id %>" data-message-uuid="<%= message.uuid %>">
   <% case message.kind %>
   <% when "prompt", "text" %>
     <div class="bubble <%= message.kind == "prompt" ? "from-user" : "from-claude" %>">
@@ -9,7 +9,14 @@
           <%= message.kind == "prompt" ? "You" : "Claude" %>
         <% end %>
         <% if message.sent_at %><time datetime="<%= message.sent_at.iso8601 %>"><%= message.sent_at.strftime("%b %-d, %-l:%M %p") %></time><% end %>
-        <%= render "messages/save_button", message: message if message.saveable? %>
+        <% if message.saveable? %>
+          <%# Notes change without re-rendering this cached fragment; the notes panel marks which anchors have one. %>
+          <span class="note-anchor">
+            <button type="button" class="note-btn" title="Add a note to this message" aria-label="Note on this message"
+                    data-action="notes-panel#editMessageNote" data-message-uuid="<%= message.uuid %>"><%= note_icon %></button>
+          </span>
+          <%= render "messages/save_button", message: message %>
+        <% end %>
       </div>
       <div class="md"><%= markdown(message.body, cwd: message.conversation.cwd) %></div>
     </div>

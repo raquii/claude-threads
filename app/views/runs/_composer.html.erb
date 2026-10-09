@@ -4,8 +4,10 @@
     <% selected_effort = conversation.last_effort.to_s %>
     <% selected_mode = conversation.last_permission_mode || "manual" %>
     <%# autocomplete off stops the browser restoring stale choices into the radios on reload or back/forward. %>
-    <%= form_with model: [ conversation, Run.new ], class: "composer", html: { autocomplete: "off" }, data: { controller: "composer", action: "keydown.meta+enter->composer#submit keydown.ctrl+enter->composer#submit turbo:submit-start->composer#start turbo:submit-end->composer#reset" } do |form| %>
-      <%= form.text_area :prompt, rows: 2, placeholder: "Continue this session…  (⌘↩ to send)", data: { "composer-target": "input" }, required: true %>
+    <%= form_with model: [ conversation, Run.new ], class: "composer", html: { autocomplete: "off" }, data: { controller: "composer markdown-editor", action: "keydown.meta+enter->composer#submit keydown.ctrl+enter->composer#submit turbo:submit-start->composer#start turbo:submit-end->composer#reset" } do |form| %>
+      <%= render "shared/markdown_toolbar", field_id: "run_prompt", hidden: true %>
+      <%= form.text_area :prompt, rows: 2, placeholder: "Continue this session…  (⌘↩ to send)", required: true,
+            data: { "composer-target": "input", "markdown-editor-target": "input", action: "keydown->markdown-editor#keydown" } %>
       <div class="composer-actions">
         <details class="run-options" data-controller="run-options" data-action="change->run-options#summarize toggle->run-options#ensureChecked keydown.esc->run-options#close">
           <summary class="run-options-trigger" title="Model, effort, and permissions for this message">

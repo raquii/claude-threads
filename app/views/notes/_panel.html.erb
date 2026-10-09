@@ -1,0 +1,44 @@
+<% conversation_note = conversation.notes.on_conversation.first %>
+<% message_notes = conversation.notes.on_messages.order(:created_at).to_a %>
+
+<div class="notes-tabs" role="tablist">
+  <button type="button" class="notes-tab" role="tab" data-notes-panel-target="tab" data-tab="conversation" data-action="notes-panel#showTab">Conversation</button>
+  <button type="button" class="notes-tab" role="tab" data-notes-panel-target="tab" data-tab="messages" data-action="notes-panel#showTab">
+    Message Notes <span class="count"><%= message_notes.size %></span>
+  </button>
+</div>
+
+<section class="notes-pane notes-pane-conversation" role="tabpanel" data-notes-panel-target="pane" data-tab="conversation">
+  <%= render "notes/editor", conversation: conversation, note: conversation_note, message_uuid: nil %>
+</section>
+
+<section class="notes-pane" role="tabpanel" data-notes-panel-target="pane" data-tab="messages" hidden>
+  <div class="message-notes" data-notes-panel-target="messageNotes">
+    <% message_notes.each do |note| %>
+      <article class="message-note" data-note-message-uuid="<%= note.message_uuid %>">
+        <div class="message-note-head">
+          <% if (message = note.message) %>
+            <%= link_to conversation_path(conversation, at: message.id, anchor: "message_#{message.id}"), class: "message-note-link",
+                  data: { action: "notes-panel#jump", message_id: message.id } do %>
+              <strong><%= message.kind == "prompt" ? "You" : "Claude" %></strong>
+              <span><%= message.body.to_s.squish.truncate(70) %></span>
+            <% end %>
+          <% else %>
+            <span class="message-note-missing">Message no longer in this session</span>
+          <% end %>
+        </div>
+        <%= render "notes/editor", conversation: conversation, note: note, message_uuid: note.message_uuid %>
+      </article>
+    <% end %>
+  </div>
+  <% if message_notes.empty? %>
+    <p class="notes-empty">Hover over a message and click its note icon to add one.</p>
+  <% end %>
+</section>
+
+<template data-notes-panel-target="newMessageNote">
+  <article class="message-note" data-note-message-uuid="">
+    <div class="message-note-head"><strong data-role="who"></strong> <span data-role="snippet"></span></div>
+    <%= render "notes/editor", conversation: conversation, note: nil, message_uuid: "" %>
+  </article>
+</template>
